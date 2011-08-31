@@ -55,24 +55,25 @@ class MetaboxCommand(sublime_plugin.TextCommand):
 
     def get_file_name(self):
         name = "untitled"
-        try:
-            name = self.view.file_name().split('/')[-1]
-        except AttributeError:
-            pass
+        try: name = self.view.file_name().split('/')[-1]
+        except AttributeError: pass
         return name
 
     def run(self, view):
     	global HOSTNAME, POST_FILE_FIELD
 
         for region in self.view.sel():
-            if not region.empty():
-                body = self.view.substr(region)
-                form = Multipart()
-                file_name = self.get_file_name()
-                form.file(POST_FILE_FIELD, file_name, body)
-                content_type, body = form.get()
 
-                request = urllib2.Request(url=HOSTNAME, headers={'Content-Type': content_type}, data=body)
-                reply = urllib2.urlopen(request).read()
-                sublime.set_clipboard(reply)
-                sublime.status_message("Metabox: " + reply)
+            if not region.empty():
+                content = self.view.substr(region)
+            else:
+                content = self.view.substr(sublime.Region(0, self.view.size()))
+            form = Multipart()
+            file_name = self.get_file_name()
+            form.file(POST_FILE_FIELD, file_name, content)
+            content_type, body = form.get()
+
+            request = urllib2.Request(url=HOSTNAME, headers={'Content-Type': content_type}, data=body)
+            reply = urllib2.urlopen(request).read()
+            sublime.set_clipboard(reply)
+            sublime.status_message("Metabox: " + reply)
