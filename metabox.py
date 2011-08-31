@@ -1,0 +1,78 @@
+# encoding: utf-8
+import urllib2
+import sublime, sublime_plugin
+
+HOSTNAME = 'http://metabox.it'
+POST_FILE_FIELD = 'file'
+
+class Part:
+
+    BOUNDARY = '----------AaB03x'
+    NEWLINE = '\r\n'
+
+    CONTENT_TYPE = 'Content-Type'
+    CONTENT_DISPOSITION = 'Content-Disposition'
+
+    DEFAULT_CONTENT_TYPE = 'application/text-plain'
+
+    def __init__(self, name, filename, body, headers):
+        self._headers = headers.copy()
+        self._name = name
+        self._filename = filename
+        self._body = body
+
+        self._headers[Part.CONTENT_DISPOSITION] = \
+            ('form-data; name="%s"; filename="%s"' %
+            (self._name, self._filename))
+
+    def get(self):
+        lines = []
+        lines.append('--' + Part.BOUNDARY)
+        for (key, val) in self._headers.items():
+            lines.append('%s: %s' % (key, val))
+        lines.append('')
+        lines.append(self._body)
+        return lines
+
+class Multipart:
+
+    def __init__(self):
+        self.parts = []
+
+    def file(self, name, filename, value, headers={'Content-Type': Part.DEFAULT_CONTENT_TYPE}):
+        self.parts.append(Part(name, filename, value, headers))
+
+    def get(self):
+        all = []
+        for part in self.parts:
+            all += part.get()
+        all.append('--' + Part.BOUNDARY + '--')
+        all.append('')
+        content_type = 'multipart/form-data; boundary=%s' % Part.BOUNDARY
+        return content_type, Part.NEWLINE.join(all)
+
+class MetaboxCommand(sublime_plugin.TextCommand):
+
+    def get_file_name(self):
+        name = "untitled"
+        try:
+            name = self.view.file_name().split('/')[-1]
+        except AttributeError:
+            pass
+        return name
+
+    def run(self, view):
+    	global HOSTNAME, POST_FILE_FIELD
+
+        for region in self.view.sel():
+            if not region.empty():
+                body = self.view.substr(region)
+                form = Multipart()
+                file_name = self.get_file_name()
+                form.file(POST_FILE_FIELD, file_name, body)
+                content_type, body = form.get()
+
+                request = urllib2.Request(url=HOSTNAME, headers={'Content-Type': content_type}, data=body)
+                reply = urllib2.urlopen(request).read()
+                sublime.set_clipboard(reply)
+                sublime.status_message("Metabox: " + reply)
