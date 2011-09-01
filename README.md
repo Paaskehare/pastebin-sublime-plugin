@@ -9,12 +9,18 @@ It takes the current selection in a file, uploads it to [Metabox](http://dl.gs),
 Installation
 ------------
 
-* copy **metabox.py** to Your `Packages/User` directory on e.g. linux it will most likely be in `~/.config/sublime-text-2/Packages/User/`
+Clone this repo into your Sublime Text 2 Packages directory
+###Linux
+    cd ~/.config/sublime-text-2/Packages/User/
+    git clone https://github.com/Paaskehare/metabox-sublime-plugin.git
 
+###Mac
+    cd ~/"Library/Application Support/Sublime Text 2/Packages/"
+    git clone https://github.com/Paaskehare/metabox-sublime-plugin.git
 
-* Bind a key to upload, like:
-  `{ "keys": ["super+m"], "command": "metabox" }`
+Usage
+-----
 
-Select some text, and hit `Super + m` and afterwards `ctrl + v` - and you're good to go!
+Select some text (or dont) and hit `Super + m` and afterwards `ctrl + v` - and you're good to go!
 
 *Good luck!*
