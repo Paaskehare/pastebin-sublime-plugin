@@ -12,8 +12,10 @@ class Part:
 
     CONTENT_TYPE = 'Content-Type'
     CONTENT_DISPOSITION = 'Content-Disposition'
+    CONTENT_TRANSFER_ENCODING = 'Content-Transfer-Encoding'
 
-    DEFAULT_CONTENT_TYPE = 'application/text-plain'
+    DEFAULT_CONTENT_TYPE = 'application/text-plain;charset=utf-8;'
+    DEFAULT_ENCODING = 'utf-8'
 
     def __init__(self, name, filename, body, headers):
         self._headers = headers.copy()
@@ -24,6 +26,8 @@ class Part:
         self._headers[Part.CONTENT_DISPOSITION] = \
             ('form-data; name="%s"; filename="%s"' %
             (self._name, self._filename))
+        self._headers[Part.CONTENT_TRANSFER_ENCODING] = \
+            (Part.DEFAULT_ENCODING)
 
     def get(self):
         lines = []
@@ -49,7 +53,7 @@ class Multipart:
         all.append('--' + Part.BOUNDARY + '--')
         all.append('')
         content_type = 'multipart/form-data; boundary=%s' % Part.BOUNDARY
-        return content_type, Part.NEWLINE.join(all)
+        return content_type, Part.NEWLINE.join(all).encode(Part.DEFAULT_ENCODING)
 
 class MetaboxCommand(sublime_plugin.TextCommand):
 
@@ -73,6 +77,7 @@ class MetaboxCommand(sublime_plugin.TextCommand):
             form.file(POST_FILE_FIELD, file_name, content)
             content_type, body = form.get()
 
+            print(body)
             request = urllib2.Request(url=HOSTNAME, headers={'Content-Type': content_type}, data=body)
             reply = urllib2.urlopen(request).read()
             sublime.set_clipboard(reply)

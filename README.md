@@ -11,12 +11,12 @@ Installation
 
 Clone this repo into your Sublime Text 2 Packages directory
 ###Linux
-    cd ~/.config/sublime-text-2/Packages/User/
-    git clone https://github.com/Paaskehare/metabox-sublime-plugin.git
+    cd ~/.config/sublime-text-2/Packages/
+    git clone git://github.com/Paaskehare/metabox-sublime-plugin.git
 
 ###Mac
     cd ~/"Library/Application Support/Sublime Text 2/Packages/"
-    git clone https://github.com/Paaskehare/metabox-sublime-plugin.git
+    git clone git://github.com/Paaskehare/metabox-sublime-plugin.git
 
 Usage
 -----
