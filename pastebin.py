@@ -55,7 +55,7 @@ class Multipart:
         content_type = 'multipart/form-data; boundary=%s' % Part.BOUNDARY
         return content_type, Part.NEWLINE.join(all).encode(Part.DEFAULT_ENCODING)
 
-class MetaboxCommand(sublime_plugin.TextCommand):
+class PastebinCommand(sublime_plugin.TextCommand):
 
     def get_file_name(self):
         name = "untitled"
