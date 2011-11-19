@@ -2,7 +2,7 @@
 import urllib2
 import sublime, sublime_plugin
 
-HOSTNAME = 'http://metabox.it'
+HOSTNAME = 'http://i.ole.im'
 POST_FILE_FIELD = 'file'
 
 class Part:
@@ -81,4 +81,4 @@ class MetaboxCommand(sublime_plugin.TextCommand):
             request = urllib2.Request(url=HOSTNAME, headers={'Content-Type': content_type}, data=body)
             reply = urllib2.urlopen(request).read()
             sublime.set_clipboard(reply)
-            sublime.status_message("Metabox: " + reply)
+            sublime.status_message("Paste: " + reply)
