@@ -1,6 +1,7 @@
 # encoding: utf-8
 import urllib2
 import sublime, sublime_plugin
+import os.path
 
 HOSTNAME = 'http://i.ole.im'
 POST_FILE_FIELD = 'file'
@@ -59,7 +60,7 @@ class PastebinCommand(sublime_plugin.TextCommand):
 
     def get_file_name(self):
         name = "untitled"
-        try: name = self.view.file_name().split('/')[-1]
+        try: name = os.path.split(self.view.file_name())[-1]
         except AttributeError: pass
         return name
 
