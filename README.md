@@ -21,6 +21,6 @@ Clone this repo into your Sublime Text 2 Packages directory
 Usage
 -----
 
-Select some text (or don't) and hit `ctrl + alt + c` and afterwards `ctrl + v` - and you're good to go!
+Select some text (or don't) and hit `ctrl + alt + m` and afterwards `ctrl + v` - and you're good to go!
 
 *Good luck!*
