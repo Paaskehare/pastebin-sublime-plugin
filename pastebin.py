@@ -1,85 +1,118 @@
-# encoding: utf-8
-import urllib2
 import sublime, sublime_plugin
-import os.path
+
+import string, random, os.path
+
+# Python 2
+try:
+    import urllib2
+
+# Python 3
+except ImportError:
+    import urllib.request as urllib2
 
 HOSTNAME = 'http://i.ole.im'
 POST_FILE_FIELD = 'file'
 
-class Part:
+class FilePart:
 
-    BOUNDARY = '----------AaB03x'
-    NEWLINE = '\r\n'
+    CONTENT_TYPE = 'application/text-plain;charset=utf-8;'
+    CONTENT_TRANSFER_ENCODING = 'utf-8'
 
-    CONTENT_TYPE = 'Content-Type'
-    CONTENT_DISPOSITION = 'Content-Disposition'
-    CONTENT_TRANSFER_ENCODING = 'Content-Transfer-Encoding'
+    def __init__(self, name, filename, body, boundary):
 
-    DEFAULT_CONTENT_TYPE = 'application/text-plain;charset=utf-8;'
-    DEFAULT_ENCODING = 'utf-8'
+        self.name = name
+        self.filename = filename
+        self.body = body
+        self.boundary = boundary
 
-    def __init__(self, name, filename, body, headers):
-        self._headers = headers.copy()
-        self._name = name
-        self._filename = filename
-        self._body = body
-
-        self._headers[Part.CONTENT_DISPOSITION] = \
-            ('form-data; name="%s"; filename="%s"' %
-            (self._name, self._filename))
-        self._headers[Part.CONTENT_TRANSFER_ENCODING] = \
-            (Part.DEFAULT_ENCODING)
+        self.headers = {
+            'Content-Type':        self.CONTENT_TYPE,
+            'Content-Disposition': 'form-data; name="{0}"; filename="{1}"'.format(
+                    self.name, self.filename
+                ),
+            'Content-Transfer-Encoding': self.CONTENT_TRANSFER_ENCODING,
+        }
 
     def get(self):
         lines = []
-        lines.append('--' + Part.BOUNDARY)
-        for (key, val) in self._headers.items():
-            lines.append('%s: %s' % (key, val))
+        lines.append('--' + self.boundary)
+
+        for key, val in self.headers.items():
+            lines.append('{0}: {1}'.format(key, val))
+
         lines.append('')
-        lines.append(self._body)
+        lines.append(self.body)
+        lines.append('--{0}--'.format(self.boundary))
+        lines.append('')
+
         return lines
 
-class Multipart:
+class FileForm:
+
+    NEWLINE = '\r\n'
+
+    # Generate a random boundary
+    def _gen_boundary(self):
+        chars = string.ascii_lowercase + string.digits
+        return ''.join(random.choice(chars) for x in range(40))
 
     def __init__(self):
-        self.parts = []
+        self.boundary = self._gen_boundary()
+        self._file = None
 
-    def file(self, name, filename, value, headers={'Content-Type': Part.DEFAULT_CONTENT_TYPE}):
-        self.parts.append(Part(name, filename, value, headers))
+    def file(self, filename, content):
+        self._file = FilePart(POST_FILE_FIELD, filename, content, self.boundary)
 
     def get(self):
-        all = []
-        for part in self.parts:
-            all += part.get()
-        all.append('--' + Part.BOUNDARY + '--')
-        all.append('')
-        content_type = 'multipart/form-data; boundary=%s' % Part.BOUNDARY
-        return content_type, Part.NEWLINE.join(all).encode(Part.DEFAULT_ENCODING)
+        # file returns an array
+        content = self._file.get()
+
+        content_type = 'multipart/form-data; boundary=' + self.boundary
+
+        return content_type, self.NEWLINE.join(content).encode(FilePart.CONTENT_TRANSFER_ENCODING)
 
 class PastebinCommand(sublime_plugin.TextCommand):
 
-    def get_file_name(self):
+    def _get_file_name(self):
         name = "untitled"
-        try: name = os.path.split(self.view.file_name())[-1]
-        except AttributeError: pass
+        try:
+            name = os.path.split(self.view.file_name())[-1]
+        except AttributeError:
+            pass
         return name
 
-    def run(self, view):
-    	global HOSTNAME, POST_FILE_FIELD
+    def run(self, edit):
 
+        # init an empty unicode string
+        content = u''
+
+        # loop over the selections in the view:
         for region in self.view.sel():
 
-            if not region.empty():
-                content = self.view.substr(region)
-            else:
-                content = self.view.substr(sublime.Region(0, self.view.size()))
-            form = Multipart()
-            file_name = self.get_file_name()
-            form.file(POST_FILE_FIELD, file_name, content)
-            content_type, body = form.get()
+            print(self.view.substr(region))
 
-            print(body)
-            request = urllib2.Request(url=HOSTNAME, headers={'Content-Type': content_type}, data=body)
-            reply = urllib2.urlopen(request).read()
-            sublime.set_clipboard(reply)
-            sublime.status_message("Paste: " + reply)
+            if not region.empty():
+                # be sure to insert a newline if we have multiple selections
+                if content:
+                    content += FILEFORM.NEWLINE
+                content += self.view.substr(region)
+
+        # if we havent gotten data from selected text,
+        # we assume the entire file should be pasted:
+        if not content:
+            content += self.view.substr(sublime.Region(0, self.view.size()))
+
+        filename = self._get_file_name()
+
+        form = FileForm()
+
+        # insert the "fake" file
+        form.file(filename = filename, content = content)
+
+        content_type, body = form.get()
+
+        request = urllib2.Request(url=HOSTNAME, headers={'Content-Type': content_type}, data=body)
+        reply = urllib2.urlopen(request).read().decode(FilePart.CONTENT_TRANSFER_ENCODING)
+
+        sublime.set_clipboard(reply)
+        sublime.status_message("Paste: " + reply)
