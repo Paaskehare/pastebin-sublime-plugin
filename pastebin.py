@@ -89,8 +89,6 @@ class PastebinCommand(sublime_plugin.TextCommand):
         # loop over the selections in the view:
         for region in self.view.sel():
 
-            print(self.view.substr(region))
-
             if not region.empty():
                 # be sure to insert a newline if we have multiple selections
                 if content:
