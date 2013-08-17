@@ -79,6 +79,8 @@ class PastebinCommand(sublime_plugin.TextCommand):
             name = os.path.split(self.view.file_name())[-1]
         except AttributeError:
             pass
+        except TypeError:
+            pass
         return name
 
     def run(self, edit):
