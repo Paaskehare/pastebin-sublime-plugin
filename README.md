@@ -28,3 +28,5 @@ Usage
 Select some text (or don't) and hit `ctrl + alt + c` and afterwards `ctrl + v` - and you're good to go!
 
 *Good luck!*
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/ccb28099215dc30a92777de35982573e "githalytics.com")](http://githalytics.com/Paaskehare/pastebin-sublime-plugin)
