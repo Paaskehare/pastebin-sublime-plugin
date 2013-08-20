@@ -94,7 +94,7 @@ class PastebinCommand(sublime_plugin.TextCommand):
             if not region.empty():
                 # be sure to insert a newline if we have multiple selections
                 if content:
-                    content += FILEFORM.NEWLINE
+                    content += FileForm.NEWLINE
                 content += self.view.substr(region)
 
         # if we havent gotten data from selected text,
