@@ -3,7 +3,7 @@ Sublime Pastebin Plugin
 
 This is a simple plugin for [Sublime Text](http://www.sublimetext.com) to allow for easily pasting code to a pastebin
 
-It takes the current selection in a file, uploads it to (by default) [i.ole.im](http://i.ole.im), and returns the URL to the clipboard.
+It takes the current selection in a file, uploads it to (by default) [upl.io](https://upl.io), and returns the URL to the clipboard.
 
 Support
 -------
@@ -28,5 +28,3 @@ Usage
 Select some text (or don't) and hit `ctrl + alt + c` and afterwards `ctrl + v` - and you're good to go!
 
 *Good luck!*
-
-[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/ccb28099215dc30a92777de35982573e "githalytics.com")](http://githalytics.com/Paaskehare/pastebin-sublime-plugin)

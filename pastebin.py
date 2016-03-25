@@ -10,7 +10,7 @@ try:
 except ImportError:
     import urllib.request as urllib2
 
-HOSTNAME = 'https://upl.io'
+HOSTNAME = 'http://http.upl.io'
 POST_FILE_FIELD = 'file'
 
 class FilePart:
